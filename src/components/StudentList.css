@@ -1,0 +1,19 @@
+
+.History ul{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    overflow: overlay;
+    max-height: 65vh;
+    padding: 0 15px;
+}
+
+.History-item{
+    border: 1px solid slateblue;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+}
