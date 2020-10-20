@@ -1,11 +1,12 @@
+import { format } from 'date-fns'
 import React, { Component, MouseEvent } from 'react'
-import './AttendanceList.css'
 import { Button, ButtonGroup, Modal } from 'react-bootstrap'
-import students from '../assets/student'
 import { ABSENT, LEFT, PRESENT } from '../assets/constants'
-import StudentAttendance from './StudentAttendance'
+import students from '../assets/student'
+import { exportXLSX } from '../helpers/ExportExcel'
 import Student from '../interface/student'
-import { exportXLSX } from '../helpers/ExportExcel';
+import './AttendanceList.css'
+import StudentAttendance from './StudentAttendance'
 
 export type Attendance = Student & {
     att_status: number
@@ -81,13 +82,13 @@ export default class AttendanceList extends Component<Props, State> {
 
     submitAttendance() {
 
-        const todaysDate = new Date()
-
         //may be need to do this last
         // localStorage.setItem(todaysDate.getTime().toString(), JSON.stringify(this.state.attendance))
 
+        const fileName = `Attendance ${format(new Date(), 'dd-MM-yyyy')} Sem 1`
+
         //create a sheet here and save accordingly
-        exportXLSX()
+        exportXLSX(fileName, this.state.attendance)
 
     }
 
