@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Button, ButtonGroup } from 'react-bootstrap'
 import { exportXLSX } from '../helpers/ExportExcel'
 import { getAttendanceFromStorage } from '../helpers/helperFns'
+import ShareModal from './ShareModal'
 
 type Props = {
 
@@ -9,6 +10,7 @@ type Props = {
 
 type State = {
 
+    showShareModal: boolean
 }
 
 export default class FileAndShare extends Component<Props, State> {
@@ -16,9 +18,12 @@ export default class FileAndShare extends Component<Props, State> {
     constructor(props: Props) {
         super(props)
         this.generateExcel = this.generateExcel.bind(this)
-        this.openShareModal = this.openShareModal.bind(this)
+        this.toggleModal = this.toggleModal.bind(this)
     }
 
+    state: State = {
+        showShareModal: false
+    }
 
     generateExcel() {
 
@@ -27,17 +32,22 @@ export default class FileAndShare extends Component<Props, State> {
         exportXLSX(todaysAttendance)
     }
 
-    openShareModal() {
-        // <a href="https://wa.me/?text=I'm%20inquiring%20about%20the%20apartment%20listing">Share</a>
+    toggleModal() {
+        this.setState((prevState) => ({ showShareModal: !prevState.showShareModal }))
     }
 
     render() {
         return (
 
-            <ButtonGroup size='lg' className='w-100'>
-                <Button variant='success' className="rounded-0 mr-1" onClick={this.generateExcel}>Excel</Button>
-                <Button variant='success' className="rounded-0 ml-1" onClick={this.openShareModal}>Share</Button>
-            </ButtonGroup>
+            <div>
+
+                <ButtonGroup size='lg' className='w-100'>
+                    <Button variant='success' className="rounded-0 mr-1" onClick={this.generateExcel}>Excel</Button>
+                    <Button variant='success' className="rounded-0 ml-1" onClick={this.toggleModal}>Share</Button>
+                </ButtonGroup>
+
+                <ShareModal show={this.state.showShareModal} onHide={this.toggleModal} />
+            </div>
         )
     }
 }

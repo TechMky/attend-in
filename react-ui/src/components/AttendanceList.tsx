@@ -184,11 +184,7 @@ export default class AttendanceList extends Component<Props, State> {
                     <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
                 </ButtonGroup>
 
-                {
-                    this.state.showSubmitModal ?
-                        <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} />
-                        : ''
-                }
+                <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} />
 
                 <ToastContainer />
             </div>
