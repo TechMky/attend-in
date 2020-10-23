@@ -1,25 +1,19 @@
-import { format } from 'date-fns'
 import React, { ChangeEvent, Component, MouseEvent } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ABSENT, LEFT, PRESENT } from '../assets/constants'
 import { semesterStudents as semesterWithStudents } from "../assets/semStudents"
+import { getAttendanceFromStorage, getTodaysDateString } from '../helpers/helperFns'
+import { Attendance } from '../types/Attendance'
 import { Semester } from '../types/semester'
-import Student from '../types/student'
+import { StoredAttendance } from '../types/StoredAttendance'
 import './AttendanceList.css'
+import FileAndShare from './FileAndShare'
 import StudentAttendance from './StudentAttendance'
 import SubmitModal from './SubmitModal'
 
-export type Attendance = Student & {
-    att_status: number
-}
 
-type StoredAttendance = {
-    semester_id: number,
-    semester_name: string,
-    attendance: Attendance[],
-}
 
 type Props = {
 
@@ -46,7 +40,6 @@ export default class AttendanceList extends Component<Props, State> {
         this.hideModal = this.hideModal.bind(this)
         this.getAttendanceStatus = this.getAttendanceStatus.bind(this)
         this.submitAttendance = this.submitAttendance.bind(this)
-        this.shareOnWhatsApp = this.shareOnWhatsApp.bind(this)
         this.handleSemesterChange = this.handleSemesterChange.bind(this)
     }
     state: State = {
@@ -94,12 +87,7 @@ export default class AttendanceList extends Component<Props, State> {
 
     submitAttendance() {
 
-        //may be need to do this last
-
-        const todaysDateKey: string = format(new Date(), 'dd-MM-yyyy')
-
-        let todaysAttendance: Array<StoredAttendance> = JSON.parse(localStorage.getItem(todaysDateKey) || '[]')
-
+        const todaysAttendance = getAttendanceFromStorage()        
         const attendanceTaken: StoredAttendance = {
             semester_id: this.state.selectedSemester.id,
             semester_name: this.state.selectedSemester.name,
@@ -108,7 +96,7 @@ export default class AttendanceList extends Component<Props, State> {
 
         todaysAttendance.push(attendanceTaken)
 
-        localStorage.setItem(todaysDateKey, JSON.stringify(todaysAttendance))
+        localStorage.setItem(getTodaysDateString(), JSON.stringify(todaysAttendance))
 
         this.setState({ showSubmitModal: false })
 
@@ -122,9 +110,6 @@ export default class AttendanceList extends Component<Props, State> {
         });
     }
 
-    shareOnWhatsApp() {
-        console.log('Shared')
-    }
 
 
     handleAttendanceStatusChange(changedAttendance: Attendance) {
@@ -192,6 +177,8 @@ export default class AttendanceList extends Component<Props, State> {
                         return <StudentAttendance key={student.id} attendance={student} onStatusChange={this.handleAttendanceStatusChange}></StudentAttendance>
                     })
                 }
+
+                <FileAndShare />
 
                 <ButtonGroup className='fixed-bottom'>
                     <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>

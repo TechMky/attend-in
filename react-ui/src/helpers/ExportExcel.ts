@@ -1,10 +1,10 @@
-import { format } from 'date-fns';
 import XLSX from 'xlsx';
-import { ABSENT, LEFT, PRESENT } from '../assets/constants';
-import { Attendance } from '../components/AttendanceList';
-export function exportXLSX(filename: string, data: Attendance[]) {
+import { StoredAttendance } from '../types/StoredAttendance';
+import { getAttendanceStatusText, getTodaysDateString } from './helperFns';
 
-    if (filename.endsWith('.xlsx') === false) filename += '.xlsx'
+
+export function exportXLSX(data: StoredAttendance[]) {
+
 
     let workbook = XLSX.utils.book_new()
 
@@ -13,47 +13,27 @@ export function exportXLSX(filename: string, data: Attendance[]) {
 
     }
 
-    workbook.SheetNames.push('Sheet1')
+    const todaysDate = getTodaysDateString()
+    data.forEach(semester => {
 
-    const formattedDate: string = format(new Date(), 'dd-MM-yyyy')
-    const wbData = [
-        ['BACHELOR OF JOURNALISM AND MASS COMMUNICATION - 1ST SEMESTER'],
-        ['Name', formattedDate]
-    ]
+        workbook.SheetNames.push(semester.semester_name)
 
-    data.forEach(attendance => {
 
-        const attdData = [attendance.name]
+        const wbData = [
+            [`BACHELOR OF JOURNALISM AND MASS COMMUNICATION - ${semester.semester_name}`],
+            ['Name', todaysDate]
+        ]
 
-        switch (attendance.att_status) {
-            case PRESENT:
 
-                attdData.push('Present') // define constants afterwards
-                break;
+        semester.attendance.forEach(attd => wbData.push([attd.name, getAttendanceStatusText(attd.att_status)]))
 
-            case ABSENT:
+        let worksheet = XLSX.utils.aoa_to_sheet(wbData)
 
-                attdData.push('Absent') // define constants afterwards
-                break;
-            case LEFT:
+        workbook.Sheets[semester.semester_name] = worksheet
 
-                attdData.push('Left') // define constants afterwards
-                break;
-
-            default:
-                attdData.push('')
-        }
-
-        wbData.push(attdData)
     })
-
-
-    let worksheet = XLSX.utils.aoa_to_sheet(wbData)
-
-    workbook.Sheets['Sheet1'] = worksheet
-
-    XLSX.writeFile(workbook, filename)
-
-    return true
+   
+    const fileName = `Attendance For ${todaysDate}.xlsx`
+    XLSX.writeFile(workbook, fileName)
 
 }
