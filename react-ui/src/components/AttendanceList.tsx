@@ -1,15 +1,24 @@
 import { format } from 'date-fns'
-import React, { Component, MouseEvent } from 'react'
-import { Button, ButtonGroup, Modal } from 'react-bootstrap'
+import React, { ChangeEvent, Component, MouseEvent } from 'react'
+import { Button, ButtonGroup, Form } from 'react-bootstrap'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { ABSENT, LEFT, PRESENT } from '../assets/constants'
-import students from '../assets/student'
-import { exportXLSX } from '../helpers/ExportExcel'
-import Student from '../interface/student'
+import { semesterStudents as semesterWithStudents } from "../assets/semStudents"
+import { Semester } from '../types/semester'
+import Student from '../types/student'
 import './AttendanceList.css'
 import StudentAttendance from './StudentAttendance'
+import SubmitModal from './SubmitModal'
 
 export type Attendance = Student & {
     att_status: number
+}
+
+type StoredAttendance = {
+    semester_id: number,
+    semester_name: string,
+    attendance: Attendance[],
 }
 
 type Props = {
@@ -17,9 +26,10 @@ type Props = {
 }
 
 type State = {
+    selectedSemester: Semester,
     attendance: Attendance[],
-    showSubmitModal: any,
-    statusLabel: string
+    showSubmitModal: boolean,
+    showWhatsApp: boolean
 }
 
 export default class AttendanceList extends Component<Props, State> {
@@ -36,10 +46,12 @@ export default class AttendanceList extends Component<Props, State> {
         this.hideModal = this.hideModal.bind(this)
         this.getAttendanceStatus = this.getAttendanceStatus.bind(this)
         this.submitAttendance = this.submitAttendance.bind(this)
+        this.shareOnWhatsApp = this.shareOnWhatsApp.bind(this)
+        this.handleSemesterChange = this.handleSemesterChange.bind(this)
     }
     state: State = {
-
-        attendance: students.map(student => {
+        selectedSemester: semesterWithStudents[0],
+        attendance: semesterWithStudents[0].students.map(student => {
             return {
                 id: student.id,
                 name: student.name,
@@ -49,7 +61,7 @@ export default class AttendanceList extends Component<Props, State> {
 
         showSubmitModal: false,
 
-        statusLabel: ''
+        showWhatsApp: false
     }
 
 
@@ -83,13 +95,35 @@ export default class AttendanceList extends Component<Props, State> {
     submitAttendance() {
 
         //may be need to do this last
-        // localStorage.setItem(todaysDate.getTime().toString(), JSON.stringify(this.state.attendance))
 
-        const fileName = `Attendance ${format(new Date(), 'dd-MM-yyyy')} Sem 1`
+        const todaysDateKey: string = format(new Date(), 'dd-MM-yyyy')
 
-        //create a sheet here and save accordingly
-        exportXLSX(fileName, this.state.attendance)
+        let todaysAttendance: Array<StoredAttendance> = JSON.parse(localStorage.getItem(todaysDateKey) || '[]')
 
+        const attendanceTaken: StoredAttendance = {
+            semester_id: this.state.selectedSemester.id,
+            semester_name: this.state.selectedSemester.name,
+            attendance: this.state.attendance
+        }
+
+        todaysAttendance.push(attendanceTaken)
+
+        localStorage.setItem(todaysDateKey, JSON.stringify(todaysAttendance))
+
+        this.setState({ showSubmitModal: false })
+
+        toast.dark('Attendance Submitted', {
+            position: "top-center",
+            autoClose: 3000,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+
+        });
+    }
+
+    shareOnWhatsApp() {
+        console.log('Shared')
     }
 
 
@@ -105,6 +139,26 @@ export default class AttendanceList extends Component<Props, State> {
         })
 
         this.setState({ attendance: newAttendance })
+
+
+    }
+
+    handleSemesterChange(e: ChangeEvent<HTMLSelectElement>) {
+        const selectedIndex = Number(e.currentTarget.value)
+
+        const newSelectedSemester = semesterWithStudents[selectedIndex]
+
+        const newAttendance = newSelectedSemester.students.map(student => {
+
+            return {
+                id: student.id,
+                name: student.name,
+                att_status: PRESENT
+            }
+        })
+
+
+        this.setState({ selectedSemester: semesterWithStudents[selectedIndex], attendance: newAttendance })
     }
 
     hideModal() {
@@ -121,11 +175,17 @@ export default class AttendanceList extends Component<Props, State> {
 
     render() {
 
-        const { present, left, absent } = this.getAttendanceStatus()
-
         return (
             <div className='pb-5'>
                 <h1 className="text-center">Students</h1>
+
+                <Form.Group>
+                    <Form.Label>Select Semester</Form.Label>
+                    <Form.Control as="select" size='lg' className='font-weight-bold' onChange={this.handleSemesterChange}>
+                        {semesterWithStudents.map((sem, index) => <option value={index} key={sem.id} data-index={index}>{sem.name}</option>)}
+                    </Form.Control>
+                </Form.Group>
+
                 {
                     this.state.attendance.map((student) => {
 
@@ -137,30 +197,13 @@ export default class AttendanceList extends Component<Props, State> {
                     <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
                 </ButtonGroup>
 
+                {
+                    this.state.showSubmitModal ?
+                        <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} />
+                        : ''
+                }
 
-                <Modal show={this.state.showSubmitModal} onHide={this.hideModal} backdropClassName='static' animation={false} centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Confirmation</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <h5 className='text-center'>Are you sure to submit the attendance?</h5>
-
-                        <p>Present: {present}, Absent: {absent}, Left: {left}</p>
-
-                        <p>Total Students: {present + absent + left}</p>
-
-                        <h6 className='text-center'>{this.state.statusLabel}</h6>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={this.hideModal}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={this.submitAttendance}>
-                            Submit
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-
+                <ToastContainer />
             </div>
         )
     }
