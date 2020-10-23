@@ -161,7 +161,7 @@ export default class AttendanceList extends Component<Props, State> {
     render() {
 
         return (
-            <div className='pb-5'>
+            <div className='mb-5 pb-4'>
                 <h1 className="text-center">Students</h1>
 
                 <Form.Group>
