@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import { DashCircleFill, CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'
 import { ABSENT, PRESENT, LEFT } from '../assets/constants'
-import { Attendance } from './AttendanceList'
+import { Attendance } from '../types/Attendance'
+
 
 type Props = {
     attendance: Attendance

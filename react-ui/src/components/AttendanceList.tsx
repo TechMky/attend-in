@@ -10,6 +10,7 @@ import { Semester } from '../types/semester'
 import { StoredAttendance } from '../types/StoredAttendance'
 import './AttendanceList.css'
 import FileAndShare from './FileAndShare'
+import Header from './Header'
 import StudentAttendance from './StudentAttendance'
 import SubmitModal from './SubmitModal'
 
@@ -161,8 +162,9 @@ export default class AttendanceList extends Component<Props, State> {
     render() {
 
         return (
-            <div className='mb-5 pb-4'>
-                <h1 className="text-center">Students</h1>
+            <div className='mb-5 py-4'>
+                <Header />
+                <h1 className="text-center pt-5">Students</h1>
 
                 <Form.Group>
                     <Form.Label>Select Semester</Form.Label>
