@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import XLSX from 'xlsx';
 import { StoredAttendance } from '../types/StoredAttendance';
 import { getAttendanceStatusText, getTodaysDateString } from './helperFns';
@@ -5,6 +6,15 @@ import { getAttendanceStatusText, getTodaysDateString } from './helperFns';
 
 export function exportXLSX(data: StoredAttendance[]) {
 
+
+    if (data.length === 0) {
+        toast.dark('Attendance Submitted', {
+            position: "top-center",
+            autoClose: 3000,
+            closeOnClick: true,
+        });
+        return
+    }
 
     let workbook = XLSX.utils.book_new()
 
