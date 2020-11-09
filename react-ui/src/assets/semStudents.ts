@@ -40,6 +40,14 @@ const semOneStudents: Student[] = [
         id: value++,
         name: 'HUMA FATMA',
     },
+    {
+        id: value++,
+        name: 'ANTRA SINGH',
+    },
+    {
+        id: value++,
+        name: 'ABHINAV ADARSH',
+    },
 
 ]
 
