@@ -6,11 +6,11 @@ const semOneStudents: Student[] = [
 
     {
         id: value++,
-        name: 'ABHISHEK SINGH',
+        name: 'AMIT SINGH',
     },
     {
         id: value++,
-        name: 'PALLAVI KUMARI GUPTA',
+        name: 'ANAND MADHUKAR PUSHP',
     },
     {
         id: value++,
@@ -80,12 +80,12 @@ let semesterId = 12;
 const semesterStudents: Semester[] = [
     {
         id: semesterId++,
-        name: 'Semester I',
+        name: 'Semester II',
         students: semOneStudents
     },
     {
         id: semesterId++,
-        name: 'Semester III',
+        name: 'Semester IV',
         students: semThreeStudents
     }
 ]
