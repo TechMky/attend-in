@@ -2,17 +2,16 @@ import React, { ChangeEvent, Component, MouseEvent } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { ABSENT, LEFT, PRESENT } from '../assets/constants'
-import { semesterStudents as semesterWithStudents } from "../assets/semStudents"
-import { getAttendanceFromStorage, getTodaysDateString } from '../helpers/helperFns'
-import { Attendance } from '../types/Attendance'
-import { Semester } from '../types/semester'
-import { StoredAttendance } from '../types/StoredAttendance'
+import { ABSENT, LEFT, PRESENT } from '../../assets/constants'
+import { semesterStudents as semesterWithStudents } from "../../assets/semStudents"
+import { getAttendanceFromStorage, getTodaysDateString } from '../../helpers/helperFns'
+import { Attendance } from '../../types/Attendance'
+import { Semester } from '../../types/semester'
+import { StoredAttendance } from '../../types/StoredAttendance'
 import './AttendanceList.css'
-import FileAndShare from './FileAndShare'
-import Header from './Header'
-import StudentAttendance from './StudentAttendance'
-import SubmitModal from './SubmitModal'
+import FileAndShare from '../FileAndShare'
+import StudentAttendance from '../StudentAttendance'
+import SubmitModal from '../SubmitModal'
 
 
 
@@ -163,8 +162,8 @@ export default class AttendanceList extends Component<Props, State> {
 
         return (
             <div className='mb-5 py-4'>
-                <Header />
-                <h1 className="text-center pt-5">Students</h1>
+                <h1 className="display-6">Take Attendance</h1>
+                <hr />
 
                 <Form.Group>
                     <Form.Label>Select Semester</Form.Label>
@@ -188,7 +187,6 @@ export default class AttendanceList extends Component<Props, State> {
 
                 <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} />
 
-                <ToastContainer />
             </div>
         )
     }

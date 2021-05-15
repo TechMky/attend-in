@@ -1,7 +1,6 @@
 import { Semester } from "../types/semester";
 import Student from "../types/student";
 
-let value = 1
 const semOneStudents: Student[] = []
 
 const semThreeStudents: Student[] = []
