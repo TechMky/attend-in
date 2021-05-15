@@ -6,6 +6,10 @@ const SemesterSchema = new Schema({
         type: String,
         required: true
     },
+    isActive: {
+        type: Boolean,
+        default: false
+    },
     students: [{
         type: Schema.Types.ObjectId,
         ref: Student,

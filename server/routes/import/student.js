@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const { StatusCodes } = require('http-status-codes');
-const Student = require('../models/Student');
+const Student = require('../../models/Student');
 
 /**
  * Imports and array of students into the database
  */
-router.post('/student', async (req, res) => {
+router.post('/', async (req, res) => {
 
     try {
         
@@ -25,7 +25,7 @@ router.post('/student', async (req, res) => {
 /**
  * Deletes all the students from database
  */
-router.delete('/student', async (req, res) => {
+router.delete('/', async (req, res) => {
     try {
         
         const result = await Student.deleteMany({})
