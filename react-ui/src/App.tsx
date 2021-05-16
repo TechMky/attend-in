@@ -2,7 +2,7 @@ import './App.css';
 import React, { lazy, Suspense } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { ROUTE } from "./config";
+import { ROUTE } from "./config/index.json";
 import { Container } from 'react-bootstrap';
 import Header from "./components/header";
 

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import { Navbar } from 'react-bootstrap'
-import { ROUTE } from '../../config'
+import { ROUTE } from '../../config/index.json'
 
 type Props = {
 

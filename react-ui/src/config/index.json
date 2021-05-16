@@ -1,0 +1,14 @@
+{
+    "ROUTE": {
+        "HOME": "/",
+        "ATTENDANCE": "/attendance"
+    },
+    "PRESENT": 0,
+    "PRESENT_TEXT": "PRESENT",
+    "ABSENT": 1,
+    "ABSENT_TEXT": "ABSENT",
+    "LEFT": 2,
+    "LEFT_TEXT": "LEFT",
+    "DATE_FORMAT": "dd-MM-yyy"
+
+}

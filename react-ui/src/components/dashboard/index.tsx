@@ -3,7 +3,7 @@ import './dashboard.css'
 import attendanceImg from '../../assets/images/attendance.jpg'
 import { Card, CardDeck } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { ROUTE } from '../../config'
+import { ROUTE } from '../../config/index.json'
 
 function Dashboard() {
     return (

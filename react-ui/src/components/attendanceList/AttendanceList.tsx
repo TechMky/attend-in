@@ -2,16 +2,17 @@ import React, { ChangeEvent, Component, MouseEvent } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { ABSENT, LEFT, PRESENT } from '../../assets/constants'
-import { semesterStudents as semesterWithStudents } from "../../assets/semStudents"
+import { ABSENT, LEFT, PRESENT } from '../../config/index.json'
 import { getAttendanceFromStorage, getTodaysDateString } from '../../helpers/helperFns'
-import { Attendance } from '../../types/Attendance'
-import { Semester } from '../../types/semester'
-import { StoredAttendance } from '../../types/StoredAttendance'
+import { Attendance } from '../../@types/Attendance'
+import { Semester } from '../../@types/Semester'
+import { StoredAttendance } from '../../@types/StoredAttendance'
 import './AttendanceList.css'
 import FileAndShare from '../FileAndShare'
-import StudentAttendance from '../StudentAttendance'
+import StudentAttendance from './StudentAttendance'
 import SubmitModal from '../SubmitModal'
+import { getSemester } from '../../helpers/ApiService'
+import Student from '../../@types/Student'
 
 
 
@@ -21,6 +22,7 @@ type Props = {
 
 type State = {
     selectedSemester: Semester,
+    semesters: Semester[],
     attendance: Attendance[],
     showSubmitModal: boolean,
     showWhatsApp: boolean
@@ -38,58 +40,31 @@ export default class AttendanceList extends Component<Props, State> {
         this.handleAttendanceStatusChange = this.handleAttendanceStatusChange.bind(this)
         this.showModal = this.showModal.bind(this)
         this.hideModal = this.hideModal.bind(this)
-        this.getAttendanceStatus = this.getAttendanceStatus.bind(this)
         this.submitAttendance = this.submitAttendance.bind(this)
         this.handleSemesterChange = this.handleSemesterChange.bind(this)
     }
     state: State = {
-        selectedSemester: semesterWithStudents[0],
-        attendance: semesterWithStudents[0].students.map(student => {
-            return {
-                id: student.id,
-                name: student.name,
-                att_status: PRESENT
-            }
-        }),
-
+        selectedSemester: {} as Semester,
+        semesters: [],
+        attendance: [],
         showSubmitModal: false,
-
         showWhatsApp: false
     }
 
+    async componentDidMount(){
 
-    getAttendanceStatus() {
-        let present = 0
-        let absent = 0
-        let left = 0
+        const semesters: Semester[] = await getSemester()
 
-        this.state.attendance.forEach(attendance => {
+        this.setState({semesters, selectedSemester: semesters.length > 0 ? semesters[0] : {} as Semester })
 
-            switch (attendance.att_status) {
-                case PRESENT:
-                    present++
-                    break;
-                case ABSENT:
-                    absent++
-                    break;
-
-                case LEFT:
-                    left++
-                    break;
-                default:
-                    break;
-            }
-
-        })
-
-        return { present, absent, left }
     }
+
 
     submitAttendance() {
 
         const todaysAttendance = getAttendanceFromStorage()        
         const attendanceTaken: StoredAttendance = {
-            semester_id: this.state.selectedSemester.id,
+            semester_id: this.state.selectedSemester._id,
             semester_name: this.state.selectedSemester.name,
             attendance: this.state.attendance
         }
@@ -114,36 +89,26 @@ export default class AttendanceList extends Component<Props, State> {
 
     handleAttendanceStatusChange(changedAttendance: Attendance) {
 
-        let newAttendance: Attendance[] = this.state.attendance.map((oldAttendance, i) => {
+        // let newAttendance: Attendance[] = this.state.attendance.map((oldAttendance, i) => {
 
-            if (oldAttendance.id === changedAttendance.id) {
-                oldAttendance.att_status = changedAttendance.att_status
-            }
+        //     if (oldAttendance._id === changedAttendance._id) {
+        //         oldAttendance.att_status = changedAttendance.att_status
+        //     }
 
-            return oldAttendance
-        })
+        //     return oldAttendance
+        // })
 
-        this.setState({ attendance: newAttendance })
+        // this.setState({ attendance: newAttendance })
 
 
     }
 
     handleSemesterChange(e: ChangeEvent<HTMLSelectElement>) {
-        const selectedIndex = Number(e.currentTarget.value)
 
-        const newSelectedSemester = semesterWithStudents[selectedIndex]
+        const semesterId:string = e.currentTarget.value
+        const foundSemester:Semester = this.state.semesters.find(sem => sem._id === semesterId) || {} as Semester
+        this.setState({selectedSemester: foundSemester})
 
-        const newAttendance = newSelectedSemester.students.map(student => {
-
-            return {
-                id: student.id,
-                name: student.name,
-                att_status: PRESENT
-            }
-        })
-
-
-        this.setState({ selectedSemester: semesterWithStudents[selectedIndex], attendance: newAttendance })
     }
 
     hideModal() {
@@ -155,10 +120,10 @@ export default class AttendanceList extends Component<Props, State> {
         this.setState({ showSubmitModal: true })
     }
 
-
-
-
     render() {
+
+        const { semesters, selectedSemester } = this.state
+        console.log("🚀 ~ file: AttendanceList.tsx ~ line 161 ~ AttendanceList ~ render ~ selectedSemester", selectedSemester)
 
         return (
             <div className='mb-5 py-4'>
@@ -168,14 +133,14 @@ export default class AttendanceList extends Component<Props, State> {
                 <Form.Group>
                     <Form.Label>Select Semester</Form.Label>
                     <Form.Control as="select" size='lg' className='font-weight-bold' onChange={this.handleSemesterChange}>
-                        {semesterWithStudents.map((sem, index) => <option value={index} key={sem.id} data-index={index}>{sem.name}</option>)}
+                        {semesters.map(sem => <option value={sem._id} key={sem._id}>{sem.name}</option>)}
                     </Form.Control>
                 </Form.Group>
 
                 {
-                    this.state.attendance.map((student) => {
+                    selectedSemester.students?.map((student:Student) => {
 
-                        return <StudentAttendance key={student.id} attendance={student} onStatusChange={this.handleAttendanceStatusChange}></StudentAttendance>
+                        return <StudentAttendance key={student._id} student={student} onStatusChange={() => {}}></StudentAttendance>
                     })
                 }
 
@@ -185,7 +150,7 @@ export default class AttendanceList extends Component<Props, State> {
                     <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
                 </ButtonGroup>
 
-                <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} />
+                {/* <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} /> */}
 
             </div>
         )

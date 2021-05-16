@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import { DashCircleFill, CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'
-import { ABSENT, PRESENT, LEFT } from '../assets/constants'
-import { Attendance } from '../types/Attendance'
+import { ABSENT, PRESENT, LEFT, PRESENT_TEXT } from '../../config/index.json'
+import { Attendance } from '../../@types/Attendance'
+import Student from '../../@types/Student'
 
 
 type Props = {
-    attendance: Attendance
-    onStatusChange: (attendance: Attendance) => void
+    student: Student
+    onStatusChange: (attendance: Student) => void
 }
 
 type State = {
+
+    attendance: Attendance
 
 }
 
@@ -20,12 +23,20 @@ export default class StudentAttendance extends Component<Props, State> {
         super(props)
 
         this.handleOnClick = this.handleOnClick.bind(this)
+        this.state = {
+            attendance: {
+                date: new Date(),
+                status: PRESENT,
+                statusText: PRESENT_TEXT,
+                studentId: props.student._id
+            }
+        }
     }
 
     getIcon(attendance: Attendance) {
 
         const size = 30
-        switch (attendance.att_status) {
+        switch (attendance.status) {
             case PRESENT:
 
                 return <CheckCircleFill size={size} className='text-success'></CheckCircleFill>
@@ -46,25 +57,35 @@ export default class StudentAttendance extends Component<Props, State> {
 
     handleOnClick(): void {
 
-        let newAttendance = Object.assign(this.props.attendance, {})
+        const {attendance: { status }} = this.state
 
-        if (this.props.attendance.att_status === LEFT) {
-            newAttendance.att_status = PRESENT
-            this.props.onStatusChange(newAttendance)
-            return
+        let newStatus = PRESENT
+        switch (status) {
+            case PRESENT:
+                newStatus = ABSENT
+                break;
+            
+            case ABSENT:
+                newStatus = LEFT
+                break;
+            
+            case LEFT:
+                newStatus = PRESENT
+                break;
+            
+            default:
+                break;
         }
 
-        newAttendance.att_status++
-
-        this.props.onStatusChange(newAttendance)
-        return
+        this.setState({attendance: { ...this.state.attendance, status: newStatus }})
 
     }
 
 
     render() {
 
-        const { attendance } = this.props
+        const { student } = this.props
+        const { attendance } = this.state
         return (
 
             <Card className='mb-2 shadow-sm'>
@@ -73,7 +94,7 @@ export default class StudentAttendance extends Component<Props, State> {
                     <Row>
                         <Col>
                             <div className="h-100 d-flex justify-content-start align-items-center">
-                                <h5 className='text-capitalize'>{attendance.name.toLowerCase()}</h5>
+                                <h5 className='text-capitalize'>{student.name}</h5>
                             </div>
 
                         </Col>
