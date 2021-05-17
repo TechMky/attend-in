@@ -1,19 +1,18 @@
 import React, { Component } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import { DashCircleFill, CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'
-import { ABSENT, PRESENT, LEFT, PRESENT_TEXT } from '../../config/index.json'
+import { ABSENT, PRESENT, LEFT, PRESENT_TEXT, ABSENT_TEXT, LEFT_TEXT } from '../../config/index.json'
 import { Attendance } from '../../@types/Attendance'
 import Student from '../../@types/Student'
+import { Semester } from '../../@types/Semester'
 
 
 type Props = {
-    student: Student
-    onStatusChange: (attendance: Student) => void
+    attendance: Attendance
+    onStatusChange: (attendance: Attendance) => void
 }
 
 type State = {
-
-    attendance: Attendance
 
 }
 
@@ -21,16 +20,7 @@ export default class StudentAttendance extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-
         this.handleOnClick = this.handleOnClick.bind(this)
-        this.state = {
-            attendance: {
-                date: new Date(),
-                status: PRESENT,
-                statusText: PRESENT_TEXT,
-                studentId: props.student._id
-            }
-        }
     }
 
     getIcon(attendance: Attendance) {
@@ -57,35 +47,37 @@ export default class StudentAttendance extends Component<Props, State> {
 
     handleOnClick(): void {
 
-        const {attendance: { status }} = this.state
 
         let newStatus = PRESENT
-        switch (status) {
+        let newStatusText = PRESENT_TEXT
+        switch (this.props.attendance.status) {
             case PRESENT:
                 newStatus = ABSENT
+                newStatusText = ABSENT_TEXT
                 break;
             
             case ABSENT:
                 newStatus = LEFT
+                newStatusText = LEFT_TEXT
                 break;
             
             case LEFT:
                 newStatus = PRESENT
+                newStatusText = PRESENT_TEXT
                 break;
             
             default:
                 break;
         }
 
-        this.setState({attendance: { ...this.state.attendance, status: newStatus }})
+        this.props.onStatusChange({ ...this.props.attendance, status: newStatus, statusText: newStatusText })
 
     }
 
 
     render() {
 
-        const { student } = this.props
-        const { attendance } = this.state
+        const { attendance } = this.props
         return (
 
             <Card className='mb-2 shadow-sm'>
@@ -94,7 +86,7 @@ export default class StudentAttendance extends Component<Props, State> {
                     <Row>
                         <Col>
                             <div className="h-100 d-flex justify-content-start align-items-center">
-                                <h5 className='text-capitalize'>{student.name}</h5>
+                                <h5 className='text-capitalize'>{attendance.student.name}</h5>
                             </div>
 
                         </Col>

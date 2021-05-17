@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import XLSX from 'xlsx';
 import { StoredAttendance } from '../@types/StoredAttendance';
-import { getAttendanceStatusText, getTodaysDateString } from './helperFns';
+import { getTodaysDateString } from './helperFns';
 
 
 export function exportXLSX(data: StoredAttendance[]) {
@@ -35,7 +35,7 @@ export function exportXLSX(data: StoredAttendance[]) {
         ]
 
 
-        semester.attendance.forEach(attd => wbData.push([attd.studentId, getAttendanceStatusText(attd.status)]))
+        semester.attendance.forEach(attd => wbData.push([attd.student._id, attd.statusText]))
 
         let worksheet = XLSX.utils.aoa_to_sheet(wbData)
 

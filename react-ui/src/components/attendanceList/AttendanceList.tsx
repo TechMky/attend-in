@@ -1,18 +1,13 @@
 import React, { ChangeEvent, Component, MouseEvent } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap'
-import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { ABSENT, LEFT, PRESENT } from '../../config/index.json'
-import { getAttendanceFromStorage, getTodaysDateString } from '../../helpers/helperFns'
+import { getAttendanceFromStudent } from '../../helpers/helperFns'
 import { Attendance } from '../../@types/Attendance'
 import { Semester } from '../../@types/Semester'
-import { StoredAttendance } from '../../@types/StoredAttendance'
 import './AttendanceList.css'
 import FileAndShare from '../FileAndShare'
 import StudentAttendance from './StudentAttendance'
-import SubmitModal from '../SubmitModal'
 import { getSemester } from '../../helpers/ApiService'
-import Student from '../../@types/Student'
 
 
 
@@ -21,7 +16,6 @@ type Props = {
 }
 
 type State = {
-    selectedSemester: Semester,
     semesters: Semester[],
     attendance: Attendance[],
     showSubmitModal: boolean,
@@ -44,7 +38,6 @@ export default class AttendanceList extends Component<Props, State> {
         this.handleSemesterChange = this.handleSemesterChange.bind(this)
     }
     state: State = {
-        selectedSemester: {} as Semester,
         semesters: [],
         attendance: [],
         showSubmitModal: false,
@@ -54,52 +47,59 @@ export default class AttendanceList extends Component<Props, State> {
     async componentDidMount(){
 
         const semesters: Semester[] = await getSemester()
+        const selectedSemester = semesters.length > 0 ? semesters[0] : {} as Semester
+        let attendance: Attendance[] = [] 
 
-        this.setState({semesters, selectedSemester: semesters.length > 0 ? semesters[0] : {} as Semester })
+        if (selectedSemester.students && selectedSemester.students.length > 0) {
+         
+            attendance = selectedSemester.students.map(student => getAttendanceFromStudent(student, selectedSemester))
+        }
+
+        this.setState({ semesters, attendance })
 
     }
 
 
     submitAttendance() {
 
-        const todaysAttendance = getAttendanceFromStorage()        
-        const attendanceTaken: StoredAttendance = {
-            semester_id: this.state.selectedSemester._id,
-            semester_name: this.state.selectedSemester.name,
-            attendance: this.state.attendance
-        }
+        // const todaysAttendance = getAttendanceFromStorage()        
+        // const attendanceTaken: StoredAttendance = {
+        //     semester_id: this.state.selectedSemester._id,
+        //     semester_name: this.state.selectedSemester.name,
+        //     attendance: this.state.attendance
+        // }
 
-        todaysAttendance.push(attendanceTaken)
+        // todaysAttendance.push(attendanceTaken)
 
-        localStorage.setItem(getTodaysDateString(), JSON.stringify(todaysAttendance))
+        // localStorage.setItem(getTodaysDateString(), JSON.stringify(todaysAttendance))
 
-        this.setState({ showSubmitModal: false })
+        // this.setState({ showSubmitModal: false })
 
-        toast.dark('Attendance Submitted', {
-            position: "top-center",
-            autoClose: 3000,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
+        // toast.dark('Attendance Submitted', {
+        //     position: "top-center",
+        //     autoClose: 3000,
+        //     closeOnClick: true,
+        //     pauseOnHover: true,
+        //     draggable: true,
 
-        });
+        // });
     }
 
 
 
     handleAttendanceStatusChange(changedAttendance: Attendance) {
 
-        // let newAttendance: Attendance[] = this.state.attendance.map((oldAttendance, i) => {
+        const attendance: Attendance[] = this.state.attendance.map((atted) => {
 
-        //     if (oldAttendance._id === changedAttendance._id) {
-        //         oldAttendance.att_status = changedAttendance.att_status
-        //     }
+            if (atted.student._id === changedAttendance.student._id) {
+                return changedAttendance
+            }
 
-        //     return oldAttendance
-        // })
+            return atted
 
-        // this.setState({ attendance: newAttendance })
+        })
 
+        this.setState({ attendance })
 
     }
 
@@ -107,7 +107,9 @@ export default class AttendanceList extends Component<Props, State> {
 
         const semesterId:string = e.currentTarget.value
         const foundSemester:Semester = this.state.semesters.find(sem => sem._id === semesterId) || {} as Semester
-        this.setState({selectedSemester: foundSemester})
+
+        const attendance = foundSemester.students.map(student => getAttendanceFromStudent(student, foundSemester))
+        this.setState({attendance})
 
     }
 
@@ -122,8 +124,7 @@ export default class AttendanceList extends Component<Props, State> {
 
     render() {
 
-        const { semesters, selectedSemester } = this.state
-        console.log("🚀 ~ file: AttendanceList.tsx ~ line 161 ~ AttendanceList ~ render ~ selectedSemester", selectedSemester)
+        const { semesters, attendance } = this.state
 
         return (
             <div className='mb-5 py-4'>
@@ -138,9 +139,9 @@ export default class AttendanceList extends Component<Props, State> {
                 </Form.Group>
 
                 {
-                    selectedSemester.students?.map((student:Student) => {
+                    attendance.map((attd:Attendance) => {
 
-                        return <StudentAttendance key={student._id} student={student} onStatusChange={() => {}}></StudentAttendance>
+                        return <StudentAttendance key={attd.student._id} attendance={attd} onStatusChange={this.handleAttendanceStatusChange}></StudentAttendance>
                     })
                 }
 
