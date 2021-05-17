@@ -1,13 +1,15 @@
+import './AttendanceList.css'
 import React, { ChangeEvent, Component, MouseEvent } from 'react'
 import { Button, ButtonGroup, Form } from 'react-bootstrap'
-import 'react-toastify/dist/ReactToastify.css'
 import { getAttendanceFromStudent } from '../../helpers/helperFns'
 import { Attendance } from '../../@types/Attendance'
 import { Semester } from '../../@types/Semester'
-import './AttendanceList.css'
 import FileAndShare from '../FileAndShare'
 import StudentAttendance from './StudentAttendance'
-import { getSemester } from '../../helpers/ApiService'
+import { getSemester, sendAttendance } from '../../helpers/ApiService'
+import SubmitModal from '../SubmitModal'
+import {toast} from 'react-toastify'
+import Student from '../../@types/Student'
 
 
 
@@ -46,43 +48,57 @@ export default class AttendanceList extends Component<Props, State> {
 
     async componentDidMount(){
 
-        const semesters: Semester[] = await getSemester()
-        const selectedSemester = semesters.length > 0 ? semesters[0] : {} as Semester
-        let attendance: Attendance[] = [] 
-
-        if (selectedSemester.students && selectedSemester.students.length > 0) {
-         
-            attendance = selectedSemester.students.map(student => getAttendanceFromStudent(student, selectedSemester))
-        }
-
-        this.setState({ semesters, attendance })
+        
+        const [error, semesters] = await getSemester()
+        if (!error){
+            const selectedSemester = semesters.length > 0 ? semesters[0] : {} as Semester
+            let attendance: Attendance[] = [] 
+            
+            if (selectedSemester && selectedSemester?.students.length > 0) {
+                
+                attendance = selectedSemester.students.map((student: Student) => getAttendanceFromStudent(student, selectedSemester))
+            }
+            
+            this.setState({ semesters, attendance })
+        } 
 
     }
 
+    async submitAttendance() {
 
-    submitAttendance() {
+        const currentDate = new Date()
+        const attendance: Attendance[] = this.state.attendance.map(attd => {
+            attd.date = currentDate
+            return attd
+        })
 
-        // const todaysAttendance = getAttendanceFromStorage()        
-        // const attendanceTaken: StoredAttendance = {
-        //     semester_id: this.state.selectedSemester._id,
-        //     semester_name: this.state.selectedSemester.name,
-        //     attendance: this.state.attendance
-        // }
+        console.log(attendance)
 
-        // todaysAttendance.push(attendanceTaken)
 
-        // localStorage.setItem(getTodaysDateString(), JSON.stringify(todaysAttendance))
+        const [error] = await sendAttendance(currentDate, attendance)
 
-        // this.setState({ showSubmitModal: false })
+        if (error) {
+            toast.dark('Unable to submit attendance', {
+                position: "top-center",
+                autoClose: 3000,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+        }
 
-        // toast.dark('Attendance Submitted', {
-        //     position: "top-center",
-        //     autoClose: 3000,
-        //     closeOnClick: true,
-        //     pauseOnHover: true,
-        //     draggable: true,
 
-        // });
+
+        this.setState({ showSubmitModal: false })
+
+        toast.dark('Attendance Submitted', {
+            position: "top-center",
+            autoClose: 3000,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+
+        });
     }
 
 
@@ -151,7 +167,7 @@ export default class AttendanceList extends Component<Props, State> {
                     <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
                 </ButtonGroup>
 
-                {/* <SubmitModal showSubmitModal={this.state.showSubmitModal} onHide={this.hideModal} attendanceStatus={this.getAttendanceStatus()} onSubmit={this.submitAttendance} /> */}
+                <SubmitModal showSubmitModal={this.state.showSubmitModal} attendance={this.state.attendance} onHide={this.hideModal} onSubmit={this.submitAttendance} />
 
             </div>
         )

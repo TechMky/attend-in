@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ABSENT, DATE_FORMAT, LEFT, PRESENT, PRESENT_TEXT } from "../config/index.json";
+import { DATE_FORMAT, PRESENT, PRESENT_TEXT } from "../config/index.json";
 import { StoredAttendance } from "../@types/StoredAttendance";
 import { Attendance } from "../@types/Attendance";
 import Student from "../@types/Student";

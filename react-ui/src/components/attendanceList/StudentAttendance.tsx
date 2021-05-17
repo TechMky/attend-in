@@ -3,8 +3,6 @@ import { Card, Col, Row } from 'react-bootstrap'
 import { DashCircleFill, CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'
 import { ABSENT, PRESENT, LEFT, PRESENT_TEXT, ABSENT_TEXT, LEFT_TEXT } from '../../config/index.json'
 import { Attendance } from '../../@types/Attendance'
-import Student from '../../@types/Student'
-import { Semester } from '../../@types/Semester'
 
 
 type Props = {

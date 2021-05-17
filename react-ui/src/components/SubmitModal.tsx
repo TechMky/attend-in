@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { Button, Modal } from 'react-bootstrap'
+import { Attendance } from '../@types/Attendance'
+import { PRESENT, ABSENT, LEFT } from '../config/index.json'
 
 type Props = {
     showSubmitModal: boolean,
-    attendanceStatus: { present: number, absent: number, left: number },
+    attendance: Attendance[],
     onHide: () => void,
     onSubmit: () => void,
 }
@@ -12,9 +14,34 @@ type State = {
 
 }
 export default class SubmitModal extends Component<Props, State> {
+
+    getAttendanceStats(){
+        let present = 0,absent = 0, left = 0
+        this.props.attendance.forEach(attd => {
+
+            switch (attd.status) {
+                case PRESENT:
+                    present++
+                    break;
+                case ABSENT:
+                    absent++
+                    break;
+                
+                case LEFT:
+                    left++
+                    break;
+                default:
+                    break;
+            }
+
+        })
+
+        return {present, absent, left}
+    }
+
     render() {
 
-        const { present, absent, left } = this.props.attendanceStatus
+        const { present, absent, left } = this.getAttendanceStats()
         return (
             <Modal show={this.props.showSubmitModal} onHide={this.props.onHide} backdropClassName='static' animation={false} centered>
                 <Modal.Header closeButton>
@@ -25,13 +52,13 @@ export default class SubmitModal extends Component<Props, State> {
 
                     <p>Present: {present}, Absent: {absent}, Left: {left}</p>
 
-                    <p>Total Students: {present + absent + left}</p>
+                    <p>Total Students: {this.props.attendance.length}</p>
 
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={this.props.onHide}>Close</Button>
 
-                    <Button variant="primary" onClick={this.props.onSubmit}>Submit</Button>
+                    <Button variant="primary" disabled={this.props.attendance.length === 0} onClick={this.props.onSubmit}>Submit</Button>
                 </Modal.Footer>
             </Modal>
         )
