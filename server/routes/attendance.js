@@ -34,6 +34,29 @@ router.post('/submit', async (req, res) => {
     }
 })
 
+
+router.get('/generateExcel/:semesterId', async (req, res) => {
+    try {
+        
+        //for single dates
+        if (req.query.date) {
+            const {year, month, day} = destructureDate(req.query.date)
+
+            const attendanceList = await Attendance.find({date: {year, month, day}, semester: req.params.semesterId})
+            
+            //need to generate excel file here and send back
+
+            return res.json(attendanceList)
+        }
+
+
+
+
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error)
+    }
+})
+
 router.get('/', async (req, res) => {
     try {
 
