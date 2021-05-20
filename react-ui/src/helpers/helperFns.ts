@@ -9,7 +9,8 @@ export function getAttendanceFromStorage(dateKey: string = format(new Date(), DA
     return JSON.parse(localStorage.getItem(dateKey) || '[]')
 }
 
-export function getTodaysDateString(): string {
+export function getTodaysDateString(dateFormat?: string): string {
+    if (dateFormat) return format(new Date(), dateFormat)
     return format(new Date(), DATE_FORMAT)
 }
 

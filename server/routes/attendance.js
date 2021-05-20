@@ -34,6 +34,17 @@ router.post('/submit', async (req, res) => {
     }
 })
 
+router.get('/', async (req, res) => {
+    try {
+
+        const attendance = await Attendance.find({})
+        res.json(attendance)
+        
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(error)
+    }
+})
+
 router.delete('/', async (req, res) => {
     try {
         
