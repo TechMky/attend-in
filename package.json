@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon server/index.js",
     "start": "node server/index.js",
-    "build": "npm install && cd react-ui/ && npm install && npm run build"
+    "build": "yarn install && cd react-ui/ && yarn install && yarn build"
   },
   "cacheDirectories": [
     "node_modules",
