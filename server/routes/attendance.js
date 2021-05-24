@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const Attendance = require('../models/Attendance');
-const { destructureDate } = require('../utils');
+const { destructureDate, exportSingleXLSX } = require('../utils');
 
 const router = require('express').Router();
 
@@ -42,14 +42,24 @@ router.get('/generateExcel/:semesterId', async (req, res) => {
         if (req.query.date) {
             const {year, month, day} = destructureDate(req.query.date)
 
-            const attendanceList = await Attendance.find({date: {year, month, day}, semester: req.params.semesterId})
+            const attendanceList = await Attendance.find({date: {year, month, day}, semester: req.params.semesterId}).populate('semester', 'name').populate('student', 'name')
             
             //need to generate excel file here and send back
+            const excelBuffer = exportSingleXLSX({year, month, day}, attendanceList)
 
-            return res.json(attendanceList)
+            if(!excelBuffer) return res.redirect('/attendance/notFound')
+
+            const fileName = `Attendance For ${req.query.date}.xlsx`
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename=${ fileName }`);
+            res.setHeader('Content-Length', excelBuffer.length);
+
+            return res.send(excelBuffer);
+
         }
 
-
+        return res.send({error: true})
 
 
     } catch (error) {

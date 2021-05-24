@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify'
 
 const Dashboard = lazy(() => import('./components/dashboard'))
 const AttendanceList = lazy(() => import('./components/attendanceList/AttendanceList'))
+const AttendanceNotFound = lazy(() => import('./components/AttendanceNotFound'))
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Switch>
             <Route exact path={ROUTE.HOME} component={Dashboard}/>
             <Route exact path={ROUTE.ATTENDANCE} component={AttendanceList}/>
+            <Route exact path={`${ROUTE.ATTENDANCE}/notFound`} component={AttendanceNotFound}/>
           </Switch>
         </Container>
         <ToastContainer />

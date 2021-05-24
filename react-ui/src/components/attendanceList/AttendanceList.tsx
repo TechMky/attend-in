@@ -132,8 +132,8 @@ export default class AttendanceList extends Component<Props, State> {
 
     }
 
-    handleDateChange(e: ChangeEvent<HTMLInputElement>){
-        this.setState({...this.state, attendanceDate: e.currentTarget.value})
+    handleDateChange(e: ChangeEvent<HTMLInputElement>) {
+        this.setState({ ...this.state, attendanceDate: e.currentTarget.value })
     }
 
     hideModal() {
@@ -142,6 +142,7 @@ export default class AttendanceList extends Component<Props, State> {
     }
 
     showModal(e: MouseEvent) {
+        e.preventDefault()
         this.setState({ showSubmitModal: true })
     }
 
@@ -154,24 +155,29 @@ export default class AttendanceList extends Component<Props, State> {
                 <h1 className="display-6">Take Attendance</h1>
                 <hr />
 
-                <Row>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>Attendance Date</Form.Label>
-                            <Form.Control type='date' size='lg' className='font-weight-bold' value={attendanceDate} onChange={this.handleDateChange}>
-                                
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                        <Form.Group>
-                            <Form.Label>Select Semester</Form.Label>
-                            <Form.Control as="select" size='lg' className='font-weight-bold' onChange={this.handleSemesterChange}>
-                                {semesters.map(sem => <option value={sem._id} key={sem._id}>{sem.name}</option>)}
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-                </Row>
+                <Form>
+                    <Row>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Attendance Date</Form.Label>
+                                <Form.Control type='date' size='lg' className='font-weight-bold' value={attendanceDate} onChange={this.handleDateChange} required={true}>
+
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group>
+                                <Form.Label>Select Semester</Form.Label>
+                                <Form.Control as="select" size='lg' className='font-weight-bold' onChange={this.handleSemesterChange}>
+                                    {semesters.map(sem => <option value={sem._id} key={sem._id}>{sem.name}</option>)}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                        <ButtonGroup className='fixed-bottom'>
+                            <Button block type='submit' variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
+                        </ButtonGroup>
+                    </Row>
+                </Form>
 
 
 
@@ -182,11 +188,11 @@ export default class AttendanceList extends Component<Props, State> {
                     })
                 }
 
-                <FileAndShare />
+                {
+                    attendance[0] ? <FileAndShare activeSemester={attendance[0].semester} attendanceDate={attendanceDate}/> : null
+                }
 
-                <ButtonGroup className='fixed-bottom'>
-                    <Button block variant='primary' size='lg' className="rounded-0" onClick={this.showModal}>Submit</Button>
-                </ButtonGroup>
+
 
                 <SubmitModal showSubmitModal={this.state.showSubmitModal} attendance={this.state.attendance} onHide={this.hideModal} onSubmit={this.submitAttendance} />
 
