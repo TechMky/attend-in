@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { Button, ButtonGroup } from 'react-bootstrap'
-import { exportXLSX } from '../helpers/ExportExcel'
-import { getAttendanceFromStorage } from '../helpers/helperFns'
+import { Semester } from '../@types/Semester'
 import ShareModal from './ShareModal'
+import { Link } from 'react-router-dom'
 
 type Props = {
-
+    activeSemester: Semester,
+    attendanceDate: string
 }
 
 type State = {
@@ -27,9 +28,6 @@ export default class FileAndShare extends Component<Props, State> {
 
     generateExcel() {
 
-        let todaysAttendance = getAttendanceFromStorage()
-
-        exportXLSX(todaysAttendance)
     }
 
     toggleModal() {
@@ -37,12 +35,16 @@ export default class FileAndShare extends Component<Props, State> {
     }
 
     render() {
+        const { activeSemester, attendanceDate } = this.props
+
         return (
 
             <div>
 
                 <ButtonGroup size='lg' className='w-100'>
-                    <Button variant='success' className="rounded-0 mr-1" onClick={this.generateExcel}>Excel</Button>
+                    <Link target='_blank' className="btn btn-success rounded-0 mr-1" to={`/api/attendance/generateExcel/${activeSemester._id}?date=${attendanceDate}`}>
+                        Excel
+                    </Link>
                     <Button variant='success' className="rounded-0 ml-1" onClick={this.toggleModal}>Share</Button>
                 </ButtonGroup>
 

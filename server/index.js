@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cluster = require('cluster');
@@ -20,16 +21,23 @@ if (!isDev && cluster.isMaster) {
   });
 
 } else {
-  const app = express();
 
+  const dbConnect = require('./models/dbConnection')
+  const app = express();
+  
+  const apiRouter = require('./routes/api')
+  
+  //middle wares
+  app.use(express.json());
+  
   // Priority serve any static files.
   app.use(express.static(path.resolve(__dirname, '../react-ui/build')));
+  
+  //connect to database
+  dbConnect();
 
   // Answer API requests.
-  app.get('/api', function (req, res) {
-    res.set('Content-Type', 'application/json');
-    res.send('{"message":"Hello from the custom server!"}');
-  });
+  app.use('/api', apiRouter)
 
   // All remaining requests return the React app, so it can handle routing.
   app.get('*', function(request, response) {

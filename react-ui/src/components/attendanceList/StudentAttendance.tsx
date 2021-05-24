@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import { DashCircleFill, CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'
-import { ABSENT, PRESENT, LEFT } from '../assets/constants'
-import { Attendance } from '../types/Attendance'
+import { ABSENT, PRESENT, LEFT, PRESENT_TEXT, ABSENT_TEXT, LEFT_TEXT } from '../../config/index.json'
+import { Attendance } from '../../@types/Attendance'
 
 
 type Props = {
@@ -18,14 +18,13 @@ export default class StudentAttendance extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-
         this.handleOnClick = this.handleOnClick.bind(this)
     }
 
     getIcon(attendance: Attendance) {
 
         const size = 30
-        switch (attendance.att_status) {
+        switch (attendance.status) {
             case PRESENT:
 
                 return <CheckCircleFill size={size} className='text-success'></CheckCircleFill>
@@ -46,18 +45,30 @@ export default class StudentAttendance extends Component<Props, State> {
 
     handleOnClick(): void {
 
-        let newAttendance = Object.assign(this.props.attendance, {})
 
-        if (this.props.attendance.att_status === LEFT) {
-            newAttendance.att_status = PRESENT
-            this.props.onStatusChange(newAttendance)
-            return
+        let newStatus = PRESENT
+        let newStatusText = PRESENT_TEXT
+        switch (this.props.attendance.status) {
+            case PRESENT:
+                newStatus = ABSENT
+                newStatusText = ABSENT_TEXT
+                break;
+            
+            case ABSENT:
+                newStatus = LEFT
+                newStatusText = LEFT_TEXT
+                break;
+            
+            case LEFT:
+                newStatus = PRESENT
+                newStatusText = PRESENT_TEXT
+                break;
+            
+            default:
+                break;
         }
 
-        newAttendance.att_status++
-
-        this.props.onStatusChange(newAttendance)
-        return
+        this.props.onStatusChange({ ...this.props.attendance, status: newStatus, statusText: newStatusText })
 
     }
 
@@ -73,7 +84,7 @@ export default class StudentAttendance extends Component<Props, State> {
                     <Row>
                         <Col>
                             <div className="h-100 d-flex justify-content-start align-items-center">
-                                <h5 className='text-capitalize'>{attendance.name.toLowerCase()}</h5>
+                                <h5 className='text-capitalize'>{attendance.student.name}</h5>
                             </div>
 
                         </Col>
