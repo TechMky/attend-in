@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "date-fns": "^2.21.3",
-    "dotenv": "^9.0.2",
+    "dotenv": "^16.0.1",
     "express": "^4.17.1",
     "http-status-codes": "^2.1.4",
     "mongoose": "^5.12.9",
